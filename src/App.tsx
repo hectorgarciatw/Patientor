@@ -8,16 +8,22 @@ import { Patient } from "./types";
 
 import patientService from "./services/patients";
 import PatientListPage from "./components/PatientListPage";
+import PatientDetailPage from "./components/PatientDetailPage";
 
 const App = () => {
     const [patients, setPatients] = useState<Patient[]>([]);
 
     useEffect(() => {
-        void axios.get<void>(`${apiBaseUrl}/ping`);
         const fetchPatientList = async () => {
-            const patients = await patientService.getAll();
-            setPatients(patients);
+            try {
+                const fetchedPatients = await patientService.getAll();
+                setPatients(fetchedPatients);
+            } catch (error) {
+                console.error("Error fetching patients:", error);
+                setPatients([]);
+            }
         };
+
         void fetchPatientList();
     }, []);
 
@@ -34,6 +40,7 @@ const App = () => {
                     <Divider hidden />
                     <Routes>
                         <Route path="/" element={<PatientListPage patients={patients} setPatients={setPatients} />} />
+                        <Route path="/api/patients/:id" element={<PatientDetailPage />} />
                     </Routes>
                 </Container>
             </Router>
